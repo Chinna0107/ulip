@@ -1,0 +1,103 @@
+.top-header {
+  height: var(--header-height);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  border-bottom: 1px solid var(--glass-border);
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  border-radius: 0;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  padding: 0 2rem;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.mobile-menu-btn {
+  display: none; /* Hidden on desktop */
+  background: transparent;
+  color: var(--text-primary);
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  border-radius: 0.5rem;
+  transition: background-color var(--transition-fast);
+}
+
+.mobile-menu-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.header-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1.1rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.user-name {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.mobile-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  z-index: 90;
+}
+
+/* Responsive Styles */
+@media (max-width: 1024px) {
+  .header-content {
+    padding: 0 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .mobile-menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .mobile-overlay {
+    display: block; /* Visible when rendered */
+  }
+  
+  .user-name {
+    display: none; /* Hide name on small screens, keep avatar */
+  }
+}
