@@ -1,7 +1,8 @@
 import axios from 'axios';
 
-// Pointing to the new local backend
-const API_BASE_URL = 'http://localhost:5001/api'; 
+// Use production URL if deployed to Vercel (or similar), otherwise local backend
+const isProduction = import.meta.env.PROD;
+const API_BASE_URL = isProduction ? 'https://ulip-be.vercel.app/api' : 'http://localhost:5001/api'; 
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
