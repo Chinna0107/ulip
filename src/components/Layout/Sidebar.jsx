@@ -6,7 +6,10 @@ import {
   ChevronDown, 
   ChevronRight,
   LogOut,
-  Building2
+  Building2,
+  DollarSign,
+  FileText,
+  Users
 } from 'lucide-react';
 import './Sidebar.css';
 
@@ -30,25 +33,29 @@ const Sidebar = ({ onLogout, isOpen, onClose }) => {
     {
       title: 'Dashboard',
       icon: <LayoutDashboard size={20} />,
-      path: '/dashboard'
+      path: '/dashboard',
+      roles: ['admin', 'user']
     },
     {
       title: 'Overall ULIP',
       icon: <Building2 size={20} />,
       id: 'overallUlip',
+      roles: ['admin', 'user'],
       children: [
-        { title: 'C&C Indent', path: '/overall-ulip/cc-indent' },
-        { title: 'Department Grant', path: '/overall-ulip/department-grant' },
-        { title: 'Capital', path: '/overall-ulip/capital' },
-        { title: 'Man Power', path: '/overall-ulip/man-power' },
-        { title: 'TADA Indents', path: '/overall-ulip/tada-indents' },
-        { title: 'Prioritized Equipments', path: '/overall-ulip/prioritized-equipments' }
+        { title: 'C&C Indent', path: '/overall-ulip/cc-indent', roles: ['admin'] },
+        { title: 'Department Grant', path: '/overall-ulip/department-grant', roles: ['admin', 'user'] },
+        { title: 'Capital', path: '/overall-ulip/capital', roles: ['admin'] },
+        { title: 'Man Power', path: '/overall-ulip/man-power', roles: ['admin'] },
+        { title: 'TADA Indents', path: '/overall-ulip/tada-indents', roles: ['admin'] },
+        { title: 'Prioritized Equipments', path: '/overall-ulip/prioritized-equipments', roles: ['admin', 'user'] },
+        { title: 'ORE', path: '/overall-ulip/ore', roles: ['admin'] }
       ]
     },
     {
       title: 'Startup Grant',
       icon: <Briefcase size={20} />,
       id: 'startupGrant',
+      roles: ['admin'],
       children: [
         { title: 'Startup Grant Details', path: '/startup-grant/details' },
         { title: 'C&C Indents', path: '/startup-grant/cc-indents' },
@@ -60,8 +67,39 @@ const Sidebar = ({ onLogout, isOpen, onClose }) => {
         { title: 'Consolidated', path: '/startup-grant/consolidated' },
         { title: 'ULIP Budget', path: '/startup-grant/ulip-budget' }
       ]
+    },
+    {
+      title: 'Allocations',
+      icon: <DollarSign size={20} />,
+      path: '/allocations',
+      roles: ['admin']
+    },
+    {
+      title: 'Proposal PDF',
+      icon: <FileText size={20} />,
+      path: '/proposal.pdf',
+      external: true,
+      roles: ['admin']
+    },
+    {
+      title: 'User Management',
+      icon: <Users size={20} />,
+      path: '/users',
+      roles: ['admin']
     }
   ];
+
+  const userRole = localStorage.getItem('ulip_user_role') || 'user';
+  
+  const filteredMenuItems = menuItems.filter(item => item.roles.includes(userRole)).map(item => {
+    if (item.children) {
+      return {
+        ...item,
+        children: item.children.filter(child => !child.roles || child.roles.includes(userRole))
+      };
+    }
+    return item;
+  });
 
   return (
     <aside className={`sidebar glass ${isOpen ? 'mobile-open' : ''}`}>
@@ -73,7 +111,7 @@ const Sidebar = ({ onLogout, isOpen, onClose }) => {
       </div>
 
       <nav className="sidebar-nav">
-        {menuItems.map((item, index) => (
+        {filteredMenuItems.map((item, index) => (
           <div key={index} className="nav-item-container">
             {item.children ? (
               <>
@@ -101,6 +139,19 @@ const Sidebar = ({ onLogout, isOpen, onClose }) => {
                   ))}
                 </div>
               </>
+            ) : item.external ? (
+              <a 
+                href={item.path}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="nav-item"
+                onClick={handleLinkClick}
+              >
+                <div className="nav-item-content">
+                  {item.icon}
+                  <span>{item.title}</span>
+                </div>
+              </a>
             ) : (
               <NavLink 
                 to={item.path}

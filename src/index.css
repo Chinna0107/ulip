@@ -1,26 +1,26 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-  /* Premium Dark Theme Color Palette */
-  --bg-primary: #0f111a;
-  --bg-secondary: #1a1d2d;
-  --bg-tertiary: #252a41;
-  --bg-card: rgba(26, 29, 45, 0.7);
+  /* Light Theme Color Palette */
+  --bg-primary: #ffffff;
+  --bg-secondary: #fce4ec; /* light pink */
+  --bg-tertiary: #f8f9fa;
+  --bg-card: rgba(248, 249, 250, 0.9);
   
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  --text-primary: #000000;
+  --text-secondary: #333333;
+  --text-muted: #666666;
   
-  --accent-primary: #6366f1;
-  --accent-secondary: #8b5cf6;
-  --accent-glow: rgba(99, 102, 241, 0.5);
+  --accent-primary: #e91e63; /* deeper pink highlight */
+  --accent-secondary: #c2185b;
+  --accent-glow: rgba(233, 30, 99, 0.3);
   
   --success: #10b981;
   --warning: #f59e0b;
   --error: #ef4444;
 
-  --border-color: rgba(255, 255, 255, 0.1);
-  --glass-border: rgba(255, 255, 255, 0.05);
+  --border-color: rgba(0, 0, 0, 0.1);
+  --glass-border: rgba(0, 0, 0, 0.05);
 
   --sidebar-width: 280px;
   --header-height: 70px;

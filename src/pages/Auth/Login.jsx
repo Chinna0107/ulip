@@ -22,6 +22,9 @@ const Login = () => {
       
       if (response.data && response.data.token) {
         localStorage.setItem('ulip_token', response.data.token);
+        if (response.data.role) {
+          localStorage.setItem('ulip_user_role', response.data.role);
+        }
         navigate('/dashboard');
       } else {
         throw new Error("Invalid response from server");
@@ -38,7 +41,7 @@ const Login = () => {
       <div className="login-card glass animate-fade-in">
         <div className="login-header">
           <h1 className="login-title">Welcome Back</h1>
-          <p className="login-subtitle">Sign in to the ULIP Admin Portal</p>
+          <p className="login-subtitle">Sign in to the ULIP Portal</p>
           <p style={{fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.5rem'}}>
             (Hint: Use admin@ulip.com / password)
           </p>

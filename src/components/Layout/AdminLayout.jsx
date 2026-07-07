@@ -10,10 +10,26 @@ const AdminLayout = () => {
   const navigate = useNavigate();
 
   // Check for valid token/session
-  const isAuthenticated = localStorage.getItem('ulip_token') !== null;
+  const token = localStorage.getItem('ulip_token');
+  const isAuthenticated = token !== null;
+
+  // Auto-recover role from token if not set
+  if (isAuthenticated && !localStorage.getItem('ulip_user_role')) {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (payload.role) {
+        localStorage.setItem('ulip_user_role', payload.role);
+      } else if (payload.email === 'admin@ulip.com') {
+        localStorage.setItem('ulip_user_role', 'admin');
+      }
+    } catch (e) {
+      console.error('Failed to parse token payload', e);
+    }
+  }
 
   const handleLogout = () => {
     localStorage.removeItem('ulip_token');
+    localStorage.removeItem('ulip_user_role');
     navigate('/login');
   };
 

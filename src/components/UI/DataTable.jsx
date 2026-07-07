@@ -9,6 +9,7 @@ const DataTable = ({ columns, data, title, onAdd, onEdit, onDelete }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({});
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleOpenAddModal = () => {
     setFormData({});
@@ -26,20 +27,27 @@ const DataTable = ({ columns, data, title, onAdd, onEdit, onDelete }) => {
     setIsModalOpen(false);
     setFormData({});
     setEditingId(null);
+    setIsSaving(false);
   };
 
   const handleFormChange = (e, accessor) => {
     setFormData({ ...formData, [accessor]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editingId) {
-      onEdit(editingId, formData);
-    } else {
-      onAdd(formData);
+    setIsSaving(true);
+    try {
+      if (editingId) {
+        await onEdit(editingId, formData);
+      } else {
+        await onAdd(formData);
+      }
+      handleCloseModal();
+    } catch (err) {
+      console.error(err);
+      setIsSaving(false);
     }
-    handleCloseModal();
   };
 
   const displayData = data ? [...data].reverse() : [];
@@ -206,9 +214,13 @@ const DataTable = ({ columns, data, title, onAdd, onEdit, onDelete }) => {
                 </div>
               ))}
               <div className="modal-actions">
-                <button type="button" className="btn-secondary" onClick={handleCloseModal}>Cancel</button>
-                <button type="submit" className="btn-primary">
-                  <Save size={16} style={{ marginRight: '0.5rem' }} /> Save
+                <button type="button" className="btn-secondary" onClick={handleCloseModal} disabled={isSaving}>Cancel</button>
+                <button type="submit" className="btn-primary" disabled={isSaving}>
+                  {isSaving ? (
+                    'Saving...'
+                  ) : (
+                    <><Save size={16} style={{ marginRight: '0.5rem' }} /> Save</>
+                  )}
                 </button>
               </div>
             </form>

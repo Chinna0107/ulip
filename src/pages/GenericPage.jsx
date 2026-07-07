@@ -41,6 +41,7 @@ const GenericPage = ({ title, sheetName }) => {
     } catch (err) {
       console.error("Failed to add record", err);
       alert("Failed to add record.");
+      throw err;
     }
   };
 
@@ -51,6 +52,7 @@ const GenericPage = ({ title, sheetName }) => {
     } catch (err) {
       console.error("Failed to update record", err);
       alert("Failed to update record.");
+      throw err;
     }
   };
 
@@ -64,6 +66,9 @@ const GenericPage = ({ title, sheetName }) => {
       alert("Failed to delete record.");
     }
   };
+
+  const userRole = localStorage.getItem('ulip_user_role') || 'user';
+  const isAdmin = userRole === 'admin';
 
   return (
     <div className="generic-page animate-fade-in">
@@ -89,9 +94,9 @@ const GenericPage = ({ title, sheetName }) => {
           title={`${title} Data`}
           columns={columns} 
           data={data}
-          onAdd={handleAdd}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
+          onAdd={isAdmin ? handleAdd : undefined}
+          onEdit={isAdmin ? handleEdit : undefined}
+          onDelete={isAdmin ? handleDelete : undefined}
         />
       )}
     </div>

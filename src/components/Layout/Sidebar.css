@@ -9,6 +9,7 @@
   z-index: 100;
   border-right: 1px solid var(--glass-border);
   transition: transform var(--transition-normal);
+  background-color: var(--bg-secondary); /* Light pink background */
 }
 
 .sidebar-header {
@@ -61,12 +62,12 @@
 }
 
 .nav-item:hover, .nav-item.active {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.05);
   color: var(--accent-primary);
 }
 
 .nav-item.active {
-  background: linear-gradient(90deg, rgba(99, 102, 241, 0.1) 0%, transparent 100%);
+  background: linear-gradient(90deg, rgba(233, 30, 99, 0.1) 0%, transparent 100%);
   border-left: 3px solid var(--accent-primary);
 }
 
