@@ -100,8 +100,8 @@ const Dashboard = () => {
           manpower: calculateTotal(mpRes, ['Total Amount per month', 'Total Amount', 'Grand Total']),
           tada: calculateTotal(tadaRes, ['Amount', 'Total']),
           ore: calculateTotal(oreRes, ['Grand Total', 'Total']),
-          dpg: calculateTotal(dpgRes, ['Total Budget Approved', 'Budget', 'Grand Total']),
-          srg: calculateTotal(grantsRes, ['Total Budget Approved', 'Budget', 'Grand Total']),
+          dpg: 0, // Logic to be added later
+          srg: 0, // Logic to be added later
         });
       } catch (err) {
         console.error("Failed to fetch stats", err);
@@ -113,7 +113,7 @@ const Dashboard = () => {
     fetchDashboardStats();
   }, []);
 
-  const StatCard = ({ title, allocated, indented, colorClass }) => {
+  const StatCard = ({ title, allocated, indented, colorClass, showOnlyAllocated }) => {
     const allocatedNum = Number(allocated) || 0;
     const indentedNum = Number(indented) || 0;
     const balanceNum = allocatedNum - indentedNum;
@@ -136,18 +136,22 @@ const Dashboard = () => {
                 {loading ? 'Loading...' : formatCurrency(allocatedNum)}
               </strong>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span>Indented:</span>
-              <strong style={{ color: 'var(--text-primary)' }}>
-                {loading ? 'Loading...' : formatCurrency(indentedNum)}
-              </strong>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.25rem', paddingTop: '0.25rem', borderTop: '1px dashed var(--border-color)' }}>
-              <span>Balance:</span>
-              <strong style={{ color: balanceNum >= 0 ? 'var(--emerald)' : 'var(--rose)' }}>
-                {loading ? 'Loading...' : formatCurrency(balanceNum)}
-              </strong>
-            </div>
+            {!showOnlyAllocated && (
+              <>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>Indented:</span>
+                  <strong style={{ color: 'var(--text-primary)' }}>
+                    {loading ? 'Loading...' : formatCurrency(indentedNum)}
+                  </strong>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.25rem', paddingTop: '0.25rem', borderTop: '1px dashed var(--border-color)' }}>
+                  <span>Balance:</span>
+                  <strong style={{ color: balanceNum >= 0 ? 'var(--emerald)' : 'var(--rose)' }}>
+                    {loading ? 'Loading...' : formatCurrency(balanceNum)}
+                  </strong>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -186,12 +190,14 @@ const Dashboard = () => {
           allocated={allocations.dpg}
           indented={stats.dpg} 
           colorClass="accent-emerald"
+          showOnlyAllocated={true}
         />
         <StatCard 
           title="Start Up Grant (SRG)" 
           allocated={allocations.srg}
           indented={stats.srg} 
           colorClass="accent-amber"
+          showOnlyAllocated={true}
         />
         <StatCard 
           title="ORE" 
