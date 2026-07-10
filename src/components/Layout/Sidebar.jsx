@@ -57,19 +57,14 @@ const Sidebar = ({ onLogout, isOpen, onClose }) => {
       id: 'startupGrant',
       roles: ['admin'],
       children: [
-        { title: 'Startup Grant Details', path: '/startup-grant/details' },
         { title: 'C&C Indents', path: '/startup-grant/cc-indents' },
         { title: 'Capital', path: '/startup-grant/capital' },
         { title: 'Overheads', path: '/startup-grant/overheads' },
-        { title: 'Tech HR Budget', path: '/startup-grant/tech-hr-budget' },
-        { title: 'IRG Indent Details', path: '/startup-grant/irg-indent-details' },
-        { title: 'No of PA-I,II', path: '/startup-grant/no-of-pa' },
-        { title: 'Consolidated', path: '/startup-grant/consolidated' },
-        { title: 'ULIP Budget', path: '/startup-grant/ulip-budget' }
+        { title: 'Tech HR Budget', path: '/startup-grant/tech-hr-budget' }
       ]
     },
     {
-      title: 'Allocations',
+      title: 'Allocation 2026-2027',
       icon: <DollarSign size={20} />,
       path: '/allocations',
       roles: ['admin']
@@ -78,6 +73,13 @@ const Sidebar = ({ onLogout, isOpen, onClose }) => {
       title: 'Proposal PDF',
       icon: <FileText size={20} />,
       path: '/proposal.pdf',
+      external: true,
+      roles: ['admin']
+    },
+    {
+      title: 'ULIP - OM',
+      icon: <FileText size={20} />,
+      path: '/ulip-om.pdf',
       external: true,
       roles: ['admin']
     },
@@ -103,10 +105,10 @@ const Sidebar = ({ onLogout, isOpen, onClose }) => {
 
   return (
     <aside className={`sidebar glass ${isOpen ? 'mobile-open' : ''}`}>
-      <div className="sidebar-header">
+      <div className="sidebar-header" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <img src="/src/assets/iict-logo.png" alt="CSIR-IICT Logo" style={{ height: '40px' }} />
         <h2 className="logo">
           <span className="logo-text">ULIP</span>
-          <span className="logo-accent">Admin</span>
         </h2>
       </div>
 

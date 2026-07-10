@@ -3,10 +3,6 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, LineChart, Line
 } from 'recharts';
-import { 
-  TrendingUp, Users, DollarSign, Activity, 
-  ArrowUpRight, ArrowDownRight, Clock
-} from 'lucide-react';
 import apiClient from '../../api/client';
 import './Dashboard.css';
 
@@ -17,7 +13,9 @@ const Dashboard = () => {
     capitalEquipments: 0,
     manpower: 0,
     tada: 0,
-    ore: 0
+    ore: 0,
+    dpg: 0,
+    srg: 0
   });
   const [allocations, setAllocations] = useState({
     org: 130000000,
@@ -56,13 +54,14 @@ const Dashboard = () => {
           setAllocations(JSON.parse(savedAllocations));
         }
 
-        const [grantsRes, ccRes, capRes, mpRes, tadaRes, oreRes] = await Promise.all([
+        const [grantsRes, ccRes, capRes, mpRes, tadaRes, oreRes, dpgRes] = await Promise.all([
           apiClient.get(`/records/${encodeURIComponent('Start up Grant ')}`),
           apiClient.get(`/records/${encodeURIComponent('C&C Indents')}`),
           apiClient.get(`/records/${encodeURIComponent('Capital')}`),
           apiClient.get(`/records/${encodeURIComponent('Manpower ')}`),
           apiClient.get(`/records/${encodeURIComponent('TADA Indents')}`),
-          apiClient.get(`/records/${encodeURIComponent('ORE')}`)
+          apiClient.get(`/records/${encodeURIComponent('ORE')}`),
+          apiClient.get(`/records/${encodeURIComponent('Department Grant ')}`)
         ]);
         
         const calculateTotal = (res, columnKeywords) => {
@@ -100,6 +99,8 @@ const Dashboard = () => {
           manpower: calculateTotal(mpRes, ['Total Amount per month', 'Total Amount', 'Grand Total']),
           tada: calculateTotal(tadaRes, ['Amount', 'Total']),
           ore: calculateTotal(oreRes, ['Grand Total', 'Total']),
+          dpg: calculateTotal(dpgRes, ['Total Budget Approved', 'Budget', 'Grand Total']),
+          srg: calculateTotal(grantsRes, ['Total Budget Approved', 'Budget', 'Grand Total']),
         });
       } catch (err) {
         console.error("Failed to fetch stats", err);
@@ -111,7 +112,7 @@ const Dashboard = () => {
     fetchDashboardStats();
   }, []);
 
-  const StatCard = ({ title, allocated, indented, icon: Icon, trend, isPositive, colorClass }) => {
+  const StatCard = ({ title, allocated, indented, colorClass }) => {
     const allocatedNum = Number(allocated) || 0;
     const indentedNum = Number(indented) || 0;
     const balanceNum = allocatedNum - indentedNum;
@@ -124,16 +125,7 @@ const Dashboard = () => {
     };
 
     return (
-      <div className={`stat-card glass animate-fade-in ${colorClass}`}>
-        <div className="stat-card-header">
-          <div className="stat-icon-wrapper">
-            <Icon size={24} />
-          </div>
-          <div className={`stat-trend ${isPositive ? 'positive' : 'negative'}`}>
-            {isPositive ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />}
-            <span>{trend}</span>
-          </div>
-        </div>
+      <div className={`stat-card glass animate-scale-up ${colorClass}`}>
         <div className="stat-body" style={{ marginTop: '1rem' }}>
           <h3 className="stat-title" style={{ marginBottom: '0.5rem' }}>{title}</h3>
           <div className="stat-details" style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
@@ -161,12 +153,25 @@ const Dashboard = () => {
     );
   };
 
+  const chartData = [
+    { name: 'DPG', allocated: allocations.dpg || 0, indented: stats.dpg || 0 },
+    { name: 'SRG', allocated: allocations.srg || 0, indented: stats.srg || 0 },
+    { name: 'ORE', allocated: allocations.ore !== undefined ? allocations.ore : 130000000, indented: stats.ore || 0 },
+    { name: 'C&C', allocated: allocations.cc || 0, indented: stats.ccIndents || 0 },
+    { name: 'Capital', allocated: allocations.capital || 0, indented: stats.capitalEquipments || 0 },
+    { name: 'Tech HR', allocated: allocations.techHr || 0, indented: stats.manpower || 0 },
+    { name: 'TADA', allocated: allocations.tada || 0, indented: stats.tada || 0 },
+  ];
+
   return (
     <div className="dashboard-container">
-      <div className="page-header animate-fade-in" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-        <div>
-          <h1 className="page-title">CSIR - IICT ULIP</h1>
-          <p className="text-secondary mt-2">Unit Lab & Inhouse Projects</p>
+      <div className="page-header animate-slide-left" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <img src="/src/assets/iict-logo.png" alt="CSIR-IICT Logo" style={{ height: '60px' }} className="animate-float" />
+          <div>
+            <h1 className="page-title">CSIR - IICT ULIP</h1>
+            <p className="text-secondary mt-2">Unit Lab & Inhouse Projects</p>
+          </div>
         </div>
         <div style={{ backgroundColor: 'var(--bg-tertiary)', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', minWidth: '250px' }}>
           <p style={{ margin: 0, fontWeight: '600', color: 'var(--text-primary)', fontSize: '0.95rem' }}>Project Leader : Dr Pravin R Likhar</p>
@@ -176,113 +181,78 @@ const Dashboard = () => {
       
       <div className="stats-grid">
         <StatCard 
+          title="Departmental Grant (DPG)" 
+          allocated={allocations.dpg}
+          indented={stats.dpg} 
+          colorClass="accent-emerald"
+        />
+        <StatCard 
+          title="Start Up Grant (SRG)" 
+          allocated={allocations.srg}
+          indented={stats.srg} 
+          colorClass="accent-amber"
+        />
+        <StatCard 
           title="ORE" 
           allocated={allocations.ore !== undefined ? allocations.ore : 130000000}
           indented={stats.ore} 
-          icon={Activity} 
-          trend="+5%" 
-          isPositive={true}
           colorClass="accent-rose"
         />
         <StatCard 
           title="Chemicals and consumables" 
           allocated={allocations.cc}
           indented={stats.ccIndents} 
-          icon={TrendingUp} 
-          trend="+5%" 
-          isPositive={true}
           colorClass="accent-emerald"
         />
         <StatCard 
           title="Capital Equipments" 
           allocated={allocations.capital}
           indented={stats.capitalEquipments} 
-          icon={DollarSign} 
-          trend="-2%" 
-          isPositive={false}
           colorClass="accent-amber"
         />
         <StatCard 
           title="Tech HR" 
           allocated={allocations.techHr}
           indented={stats.manpower} 
-          icon={Users} 
-          trend="+18%" 
-          isPositive={true}
           colorClass="accent-rose"
         />
         <StatCard 
           title="TADA" 
           allocated={allocations.tada}
           indented={stats.tada} 
-          icon={Clock} 
-          trend="+0%" 
-          isPositive={true}
           colorClass="accent-indigo"
         />
       </div>
 
-      {/* <div className="charts-grid animate-fade-in" style={{ animationDelay: '0.1s' }}>
-        <div className="chart-card glass">
+      <div className="charts-grid animate-slide-right" style={{ animationDelay: '0.1s' }}>
+        <div className="chart-card glass" style={{ gridColumn: '1 / -1' }}>
           <div className="chart-header">
-            <h3>Budget vs Expenditure</h3>
-            <span className="badge">YTD 2026</span>
+            <h3>Budget vs Indented</h3>
+            <span className="badge">All Categories</span>
           </div>
           <div className="chart-body">
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={budgetData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+            <ResponsiveContainer width="100%" height={350}>
+              <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
                 <XAxis dataKey="name" stroke="var(--text-muted)" tick={{fill: 'var(--text-muted)'}} />
-                <YAxis stroke="var(--text-muted)" tick={{fill: 'var(--text-muted)'}} />
+                <YAxis 
+                  stroke="var(--text-muted)" 
+                  tick={{fill: 'var(--text-muted)'}} 
+                  width={100}
+                  tickFormatter={(value) => new Intl.NumberFormat('en-IN', { notation: "compact", compactDisplay: "short" }).format(value)}
+                />
                 <Tooltip 
                   contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', borderRadius: '0.5rem' }}
                   itemStyle={{ color: 'var(--text-primary)' }}
+                  formatter={(value) => new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(value)}
                 />
-                <Bar dataKey="budget" name="Allocated Budget" fill="var(--accent-primary)" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="spent" name="Actual Spent" fill="var(--text-muted)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="allocated" name="Allocated Budget" fill="var(--accent-primary)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="indented" name="Indented" fill="var(--accent-emerald)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
-
-        <div className="chart-card glass">
-          <div className="chart-header">
-            <h3>Fund Distribution</h3>
-            <span className="badge">Categories</span>
-          </div>
-          <div className="chart-body">
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={distributionData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={80}
-                  outerRadius={110}
-                  paddingAngle={5}
-                  dataKey="value"
-                  stroke="none"
-                >
-                  {distributionData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', borderRadius: '0.5rem' }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="chart-legend">
-              {distributionData.map((entry, index) => (
-                <div key={index} className="legend-item">
-                  <span className="legend-color" style={{ backgroundColor: COLORS[index] }}></span>
-                  <span className="legend-label">{entry.name}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div> */}
+      </div>
 
       {/* <div className="recent-activity-section animate-fade-in" style={{ animationDelay: '0.2s' }}>
         <div className="card glass">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import apiClient from '../../api/client';
-import { Users, UserPlus, Mail, Lock, Key } from 'lucide-react';
+import { Users, UserPlus, Mail, Lock, Key, Edit2, Trash2, X } from 'lucide-react';
 import './UserManagement.css';
 
 const UserManagement = () => {
@@ -15,6 +15,7 @@ const UserManagement = () => {
   const [role, setRole] = useState('user');
   const [formLoading, setFormLoading] = useState(false);
   const [formMessage, setFormMessage] = useState('');
+  const [editingUserId, setEditingUserId] = useState(null);
 
   const fetchUsers = async () => {
     try {
@@ -35,29 +36,70 @@ const UserManagement = () => {
 
   const handleCreateUser = async (e) => {
     e.preventDefault();
-    if (!name || !email || !password) return;
+    if (!name || !email) return; // password can be optional on edit
 
     setFormLoading(true);
     setFormMessage('');
 
     try {
-      await apiClient.post('/users', { name, email, password, role });
-      setFormMessage({ type: 'success', text: 'User created successfully!' });
+      if (editingUserId) {
+        await apiClient.put(`/users/${editingUserId}`, { name, email, password, role });
+        setFormMessage({ type: 'success', text: 'User updated successfully!' });
+      } else {
+        if (!password) {
+          setFormMessage({ type: 'error', text: 'Password is required for new users.' });
+          setFormLoading(false);
+          return;
+        }
+        await apiClient.post('/users', { name, email, password, role });
+        setFormMessage({ type: 'success', text: 'User created successfully!' });
+      }
       // Reset form
       setName('');
       setEmail('');
       setPassword('');
       setRole('user');
+      setEditingUserId(null);
       // Refresh list
       fetchUsers();
     } catch (err) {
-      console.error('Error creating user:', err);
+      console.error('Error saving user:', err);
       setFormMessage({ 
         type: 'error', 
-        text: err.response?.data?.message || 'Failed to create user.' 
+        text: err.response?.data?.message || 'Failed to save user.' 
       });
     } finally {
       setFormLoading(false);
+    }
+  };
+
+  const handleEditClick = (user) => {
+    setEditingUserId(user.id);
+    setName(user.name);
+    setEmail(user.email);
+    setRole(user.role);
+    setPassword('');
+    setFormMessage('');
+  };
+
+  const handleCancelEdit = () => {
+    setEditingUserId(null);
+    setName('');
+    setEmail('');
+    setRole('user');
+    setPassword('');
+    setFormMessage('');
+  };
+
+  const handleDeleteUser = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this user?')) return;
+    
+    try {
+      await apiClient.delete(`/users/${id}`);
+      fetchUsers();
+    } catch (err) {
+      console.error('Error deleting user:', err);
+      alert('Failed to delete user.');
     }
   };
 
@@ -75,7 +117,7 @@ const UserManagement = () => {
         <div className="create-user-card glass">
           <div className="card-header">
             <UserPlus size={20} className="card-icon" />
-            <h2>Create New User</h2>
+            <h2>{editingUserId ? 'Edit User' : 'Create New User'}</h2>
           </div>
           
           <form onSubmit={handleCreateUser} className="create-user-form">
@@ -121,8 +163,8 @@ const UserManagement = () => {
                   type="password" 
                   value={password} 
                   onChange={e => setPassword(e.target.value)} 
-                  placeholder="Secure password" 
-                  required 
+                  placeholder={editingUserId ? "Leave blank to keep current" : "Secure password"} 
+                  required={!editingUserId} 
                 />
               </div>
             </div>
@@ -138,9 +180,16 @@ const UserManagement = () => {
               </div>
             </div>
 
-            <button type="submit" className="btn-primary" disabled={formLoading}>
-              {formLoading ? 'Creating...' : 'Create User'}
-            </button>
+            <div style={{ display: 'flex', gap: '1rem' }}>
+              <button type="submit" className="btn-primary" disabled={formLoading} style={{ flex: 1 }}>
+                {formLoading ? 'Saving...' : editingUserId ? 'Update User' : 'Create User'}
+              </button>
+              {editingUserId && (
+                <button type="button" onClick={handleCancelEdit} className="btn-secondary" style={{ flex: 1, padding: '0.75rem', borderRadius: '0.5rem', background: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', cursor: 'pointer' }}>
+                  Cancel
+                </button>
+              )}
+            </div>
           </form>
         </div>
 
@@ -165,6 +214,7 @@ const UserManagement = () => {
                     <th>Name</th>
                     <th>Email</th>
                     <th>Role</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -176,6 +226,16 @@ const UserManagement = () => {
                         <span className={`role-badge ${u.role}`}>
                           {u.role === 'admin' ? 'Admin' : 'User'}
                         </span>
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <button onClick={() => handleEditClick(u)} title="Edit User" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}>
+                            <Edit2 size={18} />
+                          </button>
+                          <button onClick={() => handleDeleteUser(u.id)} title="Delete User" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--error)' }}>
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

@@ -8,7 +8,9 @@ const Allocations = () => {
     capital: '0',
     techHr: '0',
     tada: '0',
-    ore: '130000000'
+    ore: '130000000',
+    dpg: '0',
+    srg: '0'
   });
 
   useEffect(() => {
@@ -33,12 +35,34 @@ const Allocations = () => {
 
   return (
     <div className="allocations-page animate-fade-in">
-      <div className="page-header">
+      <div className="page-header animate-slide-left">
         <h1 className="page-title">Budget Allocations</h1>
         <p className="text-secondary mt-2">Manage budget allocations for various categories.</p>
       </div>
 
       <div className="allocations-container glass">
+        <div className="form-group">
+          <label>Departmental Grant (DPG) Allocation</label>
+          <input 
+            type="number" 
+            name="dpg" 
+            value={allocations.dpg || ''} 
+            onChange={handleChange} 
+            className="form-control"
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Start Up Grant (SRG) Allocation</label>
+          <input 
+            type="number" 
+            name="srg" 
+            value={allocations.srg || ''} 
+            onChange={handleChange} 
+            className="form-control"
+          />
+        </div>
+
         <div className="form-group">
           <label>ORE Allocation</label>
           <input 
