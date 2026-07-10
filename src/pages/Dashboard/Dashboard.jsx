@@ -4,6 +4,7 @@ import {
   PieChart, Pie, Cell, LineChart, Line
 } from 'recharts';
 import apiClient from '../../api/client';
+import iictLogo from '../../assets/iict-logo.png';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -167,7 +168,7 @@ const Dashboard = () => {
     <div className="dashboard-container">
       <div className="page-header animate-slide-left" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <img src="/src/assets/iict-logo.png" alt="CSIR-IICT Logo" style={{ height: '60px' }} className="animate-float" />
+          <img src={iictLogo} alt="CSIR-IICT Logo" style={{ height: '60px' }} className="animate-float" />
           <div>
             <h1 className="page-title">CSIR - IICT ULIP</h1>
             <p className="text-secondary mt-2">Unit Lab & Inhouse Projects</p>

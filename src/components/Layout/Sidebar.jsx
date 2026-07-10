@@ -11,6 +11,7 @@ import {
   FileText,
   Users
 } from 'lucide-react';
+import iictLogo from '../../assets/iict-logo.png';
 import './Sidebar.css';
 
 const Sidebar = ({ onLogout, isOpen, onClose }) => {
@@ -106,7 +107,7 @@ const Sidebar = ({ onLogout, isOpen, onClose }) => {
   return (
     <aside className={`sidebar glass ${isOpen ? 'mobile-open' : ''}`}>
       <div className="sidebar-header" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-        <img src="/src/assets/iict-logo.png" alt="CSIR-IICT Logo" style={{ height: '40px' }} />
+        <img src={iictLogo} alt="CSIR-IICT Logo" style={{ height: '40px' }} />
         <h2 className="logo">
           <span className="logo-text">ULIP</span>
         </h2>
