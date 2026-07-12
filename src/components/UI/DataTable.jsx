@@ -5,11 +5,17 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import './DataTable.css';
 
-const DataTable = ({ columns, data, title, onAdd, onEdit, onDelete }) => {
+const DataTable = ({ columns, data, title, onAdd, onEdit, onDelete, budgetLimit, sumKey }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({});
   const [isSaving, setIsSaving] = useState(false);
+
+  const isNumericColumn = (header) => {
+    if (!header) return false;
+    const h = header.toLowerCase();
+    return h.includes('cost') || h.includes('amount') || h.includes('total') || h.includes('qty') || h.includes('rate') || h.includes('gst') || h.includes('budget') || !isNaN(Number(header));
+  };
 
   const handleOpenAddModal = () => {
     setFormData({});
@@ -109,6 +115,25 @@ const DataTable = ({ columns, data, title, onAdd, onEdit, onDelete }) => {
     }
   }
 
+  let projectedTotal = grandTotal;
+  let isOverBudget = false;
+
+  if (budgetLimit !== null && budgetLimit !== undefined && sumKey && formData[sumKey]) {
+    const newValue = Number(formData[sumKey]) || 0;
+    
+    if (editingId) {
+      const oldItem = data.find(item => item.id === editingId);
+      const oldValue = oldItem ? (Number(oldItem[sumKey]) || 0) : 0;
+      projectedTotal = grandTotal - oldValue + newValue;
+    } else {
+      projectedTotal = grandTotal + newValue;
+    }
+    
+    if (projectedTotal > budgetLimit) {
+      isOverBudget = true;
+    }
+  }
+
   return (
     <div className="data-table-container glass animate-fade-in">
       <div className="data-table-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -205,17 +230,39 @@ const DataTable = ({ columns, data, title, onAdd, onEdit, onDelete }) => {
               {columns.map((col, index) => (
                 <div key={index} className="form-group">
                   <label>{col.header}</label>
-                  <input
-                    type="text"
-                    value={formData[col.accessor] || ''}
-                    onChange={(e) => handleFormChange(e, col.accessor)}
-                    placeholder={`Enter ${col.header}`}
-                  />
+                  {col.type === 'select' ? (
+                    <select
+                      value={formData[col.accessor] || ''}
+                      onChange={(e) => handleFormChange(e, col.accessor)}
+                      className="form-select"
+                      style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', background: 'var(--bg-tertiary)', color: 'var(--text-primary)', width: '100%', fontSize: '0.95rem' }}
+                    >
+                      <option value="">Select {col.header}</option>
+                      {col.options?.map(opt => (
+                        <option key={opt} value={opt}>{opt}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      type={isNumericColumn(col.header) ? 'number' : 'text'}
+                      step={isNumericColumn(col.header) ? 'any' : undefined}
+                      value={formData[col.accessor] || ''}
+                      onChange={(e) => handleFormChange(e, col.accessor)}
+                      placeholder={`Enter ${col.header}`}
+                    />
+                  )}
                 </div>
               ))}
+              
+              {isOverBudget && (
+                <div style={{ color: 'var(--error)', backgroundColor: 'var(--error-light)', padding: '0.75rem', borderRadius: 'var(--radius-md)', marginBottom: '1rem', fontSize: '0.9rem', border: '1px solid var(--error)' }}>
+                  <strong>Budget Exceeded:</strong> Projected total ({projectedTotal.toLocaleString('en-IN', { maximumFractionDigits: 0 })}) exceeds the allocated limit of {budgetLimit.toLocaleString('en-IN', { maximumFractionDigits: 0 })}.
+                </div>
+              )}
+              
               <div className="modal-actions">
                 <button type="button" className="btn-secondary" onClick={handleCloseModal} disabled={isSaving}>Cancel</button>
-                <button type="submit" className="btn-primary" disabled={isSaving}>
+                <button type="submit" className="btn-primary" disabled={isSaving || isOverBudget}>
                   {isSaving ? (
                     'Saving...'
                   ) : (

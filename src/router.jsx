@@ -6,11 +6,57 @@ import Login from './pages/Auth/Login';
 import Dashboard from './pages/Dashboard/Dashboard';
 import GenericPage from './pages/GenericPage';
 import Allocations from './pages/Allocations/Allocations';
+import Payments from './pages/Allocations/Payments';
 
 import ProtectedRoute from './components/Auth/ProtectedRoute';
 import UserManagement from './pages/Users/UserManagement';
+import Home from './pages/Home/Home';
+import PublicDashboard from './pages/PublicDashboard';
+import PDFViewer from './pages/PDFViewer';
+import PublicLayout from './components/Layout/PublicLayout';
+
+const RootRedirect = () => {
+  const role = localStorage.getItem('ulip_user_role');
+  if (role === 'admin') {
+    return <Navigate to="/dashboard" replace />;
+  }
+  if (role === 'user') {
+    return <Navigate to="/home" replace />;
+  }
+  return <Dashboard />;
+};
 
 export const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <PublicLayout />,
+    children: [
+      {
+        path: '/',
+        element: <PublicDashboard />,
+      },
+      {
+        path: '/ulip-om',
+        element: <PDFViewer title="ULIP OM" fileUrl="/ulip-om.pdf" />,
+      },
+      {
+        path: '/proposal',
+        element: <PDFViewer title="ULIP Proposal" fileUrl="/proposal.pdf" />,
+      },
+      {
+        path: '/prioritized-equipments',
+        element: <GenericPage title="Prioritized Equipments" sheetName="Prioritized  Equipments" />,
+      },
+      {
+        path: '/departmental-grant',
+        element: <GenericPage title="Departmental Grant" sheetName="Department Grant " />,
+      },
+      {
+        path: '/startup-grant',
+        element: <GenericPage title="Start Up Grant Details" sheetName="Start up Grant " />,
+      }
+    ]
+  },
   {
     path: '/login',
     element: <Login />,
@@ -20,12 +66,20 @@ export const router = createBrowserRouter([
     element: <AdminLayout />,
     children: [
       {
-        path: '/',
-        element: <Navigate to="/dashboard" replace />,
+        path: 'dashboard',
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Dashboard />
+          </ProtectedRoute>
+        ),
       },
       {
-        path: 'dashboard',
-        element: <Dashboard />,
+        path: 'home',
+        element: (
+          <ProtectedRoute allowedRoles={['user', 'admin']}>
+            <Home />
+          </ProtectedRoute>
+        ),
       },
       {
         path: 'users',
@@ -40,6 +94,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={['admin']}>
             <Allocations />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: 'payments',
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Payments />
           </ProtectedRoute>
         ),
       },

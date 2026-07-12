@@ -35,7 +35,13 @@ const Sidebar = ({ onLogout, isOpen, onClose }) => {
       title: 'Dashboard',
       icon: <LayoutDashboard size={20} />,
       path: '/dashboard',
-      roles: ['admin', 'user']
+      roles: ['admin']
+    },
+    {
+      title: 'Home',
+      icon: <LayoutDashboard size={20} />,
+      path: '/home',
+      roles: ['user']
     },
     {
       title: 'Overall ULIP',
@@ -68,6 +74,12 @@ const Sidebar = ({ onLogout, isOpen, onClose }) => {
       title: 'Allocation 2026-2027',
       icon: <DollarSign size={20} />,
       path: '/allocations',
+      roles: ['admin']
+    },
+    {
+      title: 'Payments',
+      icon: <DollarSign size={20} />,
+      path: '/payments',
       roles: ['admin']
     },
     {

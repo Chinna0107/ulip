@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, LineChart, Line
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
-import apiClient from '../../api/client';
-import iictLogo from '../../assets/iict-logo.png';
-import './Dashboard.css';
+import apiClient from '../api/client';
+import iictLogo from '../assets/iict-logo.png';
+import './Dashboard/Dashboard.css';
 
-const Dashboard = () => {
+const PublicDashboard = () => {
   const [stats, setStats] = useState({
     totalGrants: 0,
     ccIndents: 0,
@@ -195,22 +194,24 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="dashboard-container">
-      <div className="page-header animate-slide-left" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <img src={iictLogo} alt="CSIR-IICT Logo" style={{ height: '60px' }} className="animate-float" />
-          <div>
-            <h1 className="page-title">CSIR - IICT ULIP</h1>
-            <p className="text-secondary mt-2">Unit Lab & Inhouse Projects</p>
+    <div className="dashboard-container" style={{ padding: '0 1rem' }}>
+      
+      {/* Project Details Banner */}
+      <div className="animate-slide-down" style={{ display: 'flex', justifyContent: 'center', margin: '2rem 0 1rem 0' }}>
+        <div className="glass" style={{ display: 'flex', gap: '3rem', flexWrap: 'wrap', justifyContent: 'center', backgroundColor: 'var(--bg-tertiary)', padding: '1.25rem 3rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-color)', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)' }}>
+          <div style={{ textAlign: 'center' }}>
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '600' }}>Project Leader</span>
+            <p style={{ margin: '0.25rem 0 0 0', fontWeight: 'bold', color: 'var(--accent-primary)', fontSize: '1.2rem' }}>Dr. Pravin R Likhar</p>
+          </div>
+          <div style={{ width: '1px', backgroundColor: 'var(--border-color)', margin: '0 1rem' }} className="hide-on-mobile"></div>
+          <div style={{ textAlign: 'center' }}>
+            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: '600' }}>Co-PI</span>
+            <p style={{ margin: '0.25rem 0 0 0', fontWeight: 'bold', color: 'var(--emerald)', fontSize: '1.2rem' }}>Dr. S Sreelatha</p>
           </div>
         </div>
-        <div style={{ backgroundColor: 'var(--bg-tertiary)', padding: '1rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', minWidth: '250px' }}>
-          <p style={{ margin: 0, fontWeight: '600', color: 'var(--text-primary)', fontSize: '0.95rem' }}>Project Leader : Dr Pravin R Likhar</p>
-          <p style={{ margin: '0.25rem 0 0 0', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Co- PI : Dr S Sreelatha</p>
-        </div>
       </div>
-      
-      <div className="stats-grid">
+
+      <div className="stats-grid" style={{ marginTop: '2rem' }}>
         <StatCard 
           title="Departmental Grant (DPG)" 
           allocated={allocations.dpg}
@@ -265,7 +266,7 @@ const Dashboard = () => {
             <ResponsiveContainer width="100%" height={350}>
               <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
-                <XAxis dataKey="name" stroke="var(--text-muted)" tick={{fill: 'var(--text-muted)'}} />
+                <XAxis dataKey="name" stroke="var(--text-muted)" tick={{fill: 'var(--text-muted)'}} tickMargin={10} />
                 <YAxis 
                   stroke="var(--text-muted)" 
                   tick={{fill: 'var(--text-muted)'}} 
@@ -273,13 +274,15 @@ const Dashboard = () => {
                   tickFormatter={(value) => new Intl.NumberFormat('en-IN', { notation: "compact", compactDisplay: "short" }).format(value)}
                 />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', borderRadius: '0.5rem' }}
-                  itemStyle={{ color: 'var(--text-primary)' }}
+                  contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', borderRadius: '0.5rem', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.2)' }}
+                  itemStyle={{ color: 'var(--text-primary)', fontWeight: '500' }}
                   formatter={(value) => new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(value)}
+                  cursor={{fill: 'rgba(255,255,255,0.05)'}}
                 />
+                <Legend wrapperStyle={{ paddingTop: '20px' }} />
                 <Bar dataKey="allocated" name="Allocated Budget" fill="var(--accent-primary)" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="indented" name="Indented" fill="var(--accent-emerald)" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="payments" name="Payments" fill="var(--accent-amber)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="payments" name="Payments" fill="var(--accent-amber)" radius={[4, 4, 0, 0]} animationDuration={1500} animationEasing="ease-out" />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -321,4 +324,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default PublicDashboard;

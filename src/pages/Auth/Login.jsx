@@ -25,7 +25,11 @@ const Login = () => {
         if (response.data.role) {
           localStorage.setItem('ulip_user_role', response.data.role);
         }
-        navigate('/dashboard');
+        if (response.data.role === 'admin') {
+          navigate('/dashboard');
+        } else {
+          navigate('/home');
+        }
       } else {
         throw new Error("Invalid response from server");
       }
