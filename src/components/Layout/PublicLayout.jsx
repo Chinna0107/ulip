@@ -30,6 +30,9 @@ const PublicLayout = () => {
         
         {/* Navigation Menu */}
         <nav className={`desktop-nav ${mobileMenuOpen ? 'mobile-nav-open' : ''}`}>
+          <span onClick={() => handleNav('/')} className="nav-link-hover">
+            Home
+          </span>
           <span onClick={() => handleNav('/ulip-om')} className="nav-link-hover">
             ULIP OM
           </span>

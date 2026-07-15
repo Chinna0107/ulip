@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, LineChart, Line
+  PieChart, Pie, Cell, LineChart, Line, Legend
 } from 'recharts';
 import apiClient from '../../api/client';
 import iictLogo from '../../assets/iict-logo.png';
@@ -255,31 +255,60 @@ const Dashboard = () => {
         />
       </div>
 
-      <div className="charts-grid animate-slide-right" style={{ animationDelay: '0.1s' }}>
-        <div className="chart-card glass" style={{ gridColumn: '1 / -1' }}>
+      <div className="charts-grid animate-slide-right" style={{ animationDelay: '0.1s', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem' }}>
+        <div className="chart-card glass">
           <div className="chart-header">
-            <h3>Budget vs Indented vs Payments</h3>
-            <span className="badge">All Categories</span>
+            <h3>Allocated vs Indented</h3>
           </div>
           <div className="chart-body">
             <ResponsiveContainer width="100%" height={350}>
               <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
-                <XAxis dataKey="name" stroke="var(--text-muted)" tick={{fill: 'var(--text-muted)'}} />
+                <XAxis dataKey="name" stroke="var(--text-muted)" tick={{fill: 'var(--text-muted)'}} tickMargin={10} />
                 <YAxis 
                   stroke="var(--text-muted)" 
                   tick={{fill: 'var(--text-muted)'}} 
-                  width={100}
+                  width={80}
                   tickFormatter={(value) => new Intl.NumberFormat('en-IN', { notation: "compact", compactDisplay: "short" }).format(value)}
                 />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', borderRadius: '0.5rem' }}
-                  itemStyle={{ color: 'var(--text-primary)' }}
+                  contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', borderRadius: '0.5rem', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.2)' }}
+                  itemStyle={{ color: 'var(--text-primary)', fontWeight: '500' }}
                   formatter={(value) => new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(value)}
+                  cursor={{fill: 'rgba(255,255,255,0.05)'}}
                 />
+                <Legend wrapperStyle={{ paddingTop: '20px' }} />
                 <Bar dataKey="allocated" name="Allocated Budget" fill="var(--accent-primary)" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="indented" name="Indented" fill="var(--accent-emerald)" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="payments" name="Payments" fill="var(--accent-amber)" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="chart-card glass">
+          <div className="chart-header">
+            <h3>Allocated vs Payments</h3>
+          </div>
+          <div className="chart-body">
+            <ResponsiveContainer width="100%" height={350}>
+              <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
+                <XAxis dataKey="name" stroke="var(--text-muted)" tick={{fill: 'var(--text-muted)'}} tickMargin={10} />
+                <YAxis 
+                  stroke="var(--text-muted)" 
+                  tick={{fill: 'var(--text-muted)'}} 
+                  width={80}
+                  tickFormatter={(value) => new Intl.NumberFormat('en-IN', { notation: "compact", compactDisplay: "short" }).format(value)}
+                />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', borderRadius: '0.5rem', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.2)' }}
+                  itemStyle={{ color: 'var(--text-primary)', fontWeight: '500' }}
+                  formatter={(value) => new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(value)}
+                  cursor={{fill: 'rgba(255,255,255,0.05)'}}
+                />
+                <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                <Bar dataKey="allocated" name="Allocated Budget" fill="var(--accent-primary)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="payments" name="Payments" fill="var(--accent-amber)" radius={[4, 4, 0, 0]} animationDuration={1500} animationEasing="ease-out" />
               </BarChart>
             </ResponsiveContainer>
           </div>

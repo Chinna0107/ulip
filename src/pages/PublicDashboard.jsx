@@ -184,8 +184,6 @@ const PublicDashboard = () => {
   };
 
   const chartData = [
-    { name: 'DPG', allocated: allocations.dpg || 0, indented: stats.dpg || 0, payments: payments.dpg || 0 },
-    { name: 'SRG', allocated: allocations.srg || 0, indented: stats.srg || 0, payments: payments.srg || 0 },
     { name: 'ORE', allocated: allocations.ore !== undefined ? allocations.ore : 130000000, indented: stats.ore || 0, payments: payments.ore || 0 },
     { name: 'C&C', allocated: allocations.cc || 0, indented: stats.ccIndents || 0, payments: payments.cc || 0 },
     { name: 'Capital', allocated: allocations.capital || 0, indented: stats.capitalEquipments || 0, payments: payments.capital || 0 },
@@ -212,18 +210,6 @@ const PublicDashboard = () => {
       </div>
 
       <div className="stats-grid" style={{ marginTop: '2rem' }}>
-        <StatCard 
-          title="Departmental Grant (DPG)" 
-          allocated={allocations.dpg}
-          indented={stats.dpg} 
-          colorClass="accent-emerald"
-        />
-        <StatCard 
-          title="Start Up Grant (SRG)" 
-          allocated={allocations.srg}
-          indented={stats.srg} 
-          colorClass="accent-amber"
-        />
         <StatCard 
           title="ORE" 
           allocated={allocations.ore !== undefined ? allocations.ore : 130000000}
@@ -256,11 +242,10 @@ const PublicDashboard = () => {
         />
       </div>
 
-      <div className="charts-grid animate-slide-right" style={{ animationDelay: '0.1s' }}>
-        <div className="chart-card glass" style={{ gridColumn: '1 / -1' }}>
+      <div className="charts-grid animate-slide-right" style={{ animationDelay: '0.1s', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '1.5rem' }}>
+        <div className="chart-card glass">
           <div className="chart-header">
-            <h3>Budget vs Indented vs Payments</h3>
-            <span className="badge">All Categories</span>
+            <h3>Allocated vs Indented</h3>
           </div>
           <div className="chart-body">
             <ResponsiveContainer width="100%" height={350}>
@@ -270,7 +255,7 @@ const PublicDashboard = () => {
                 <YAxis 
                   stroke="var(--text-muted)" 
                   tick={{fill: 'var(--text-muted)'}} 
-                  width={100}
+                  width={80}
                   tickFormatter={(value) => new Intl.NumberFormat('en-IN', { notation: "compact", compactDisplay: "short" }).format(value)}
                 />
                 <Tooltip 
@@ -282,6 +267,34 @@ const PublicDashboard = () => {
                 <Legend wrapperStyle={{ paddingTop: '20px' }} />
                 <Bar dataKey="allocated" name="Allocated Budget" fill="var(--accent-primary)" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="indented" name="Indented" fill="var(--accent-emerald)" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="chart-card glass">
+          <div className="chart-header">
+            <h3>Allocated vs Payments</h3>
+          </div>
+          <div className="chart-body">
+            <ResponsiveContainer width="100%" height={350}>
+              <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
+                <XAxis dataKey="name" stroke="var(--text-muted)" tick={{fill: 'var(--text-muted)'}} tickMargin={10} />
+                <YAxis 
+                  stroke="var(--text-muted)" 
+                  tick={{fill: 'var(--text-muted)'}} 
+                  width={80}
+                  tickFormatter={(value) => new Intl.NumberFormat('en-IN', { notation: "compact", compactDisplay: "short" }).format(value)}
+                />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--border-color)', borderRadius: '0.5rem', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.2)' }}
+                  itemStyle={{ color: 'var(--text-primary)', fontWeight: '500' }}
+                  formatter={(value) => new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(value)}
+                  cursor={{fill: 'rgba(255,255,255,0.05)'}}
+                />
+                <Legend wrapperStyle={{ paddingTop: '20px' }} />
+                <Bar dataKey="allocated" name="Allocated Budget" fill="var(--accent-primary)" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="payments" name="Payments" fill="var(--accent-amber)" radius={[4, 4, 0, 0]} animationDuration={1500} animationEasing="ease-out" />
               </BarChart>
             </ResponsiveContainer>

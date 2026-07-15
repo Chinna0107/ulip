@@ -45,11 +45,11 @@ export const router = createBrowserRouter([
       },
       {
         path: '/prioritized-equipments',
-        element: <GenericPage title="Prioritized Equipments" sheetName="Prioritized  Equipments" />,
+        element: <PDFViewer title="Prioritized Equipments" fileUrl="/Prioritized Equipment Data.pdf" />,
       },
       {
         path: '/departmental-grant',
-        element: <GenericPage title="Departmental Grant" sheetName="Department Grant " />,
+        element: <PDFViewer title="Departmental Grant" fileUrl="/Departmental Grant.pdf" />,
       },
       {
         path: '/startup-grant',
