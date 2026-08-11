@@ -18,12 +18,12 @@ const PublicDashboard = () => {
     srg: 0
   });
   const [allocations, setAllocations] = useState({
-    org: 130000000,
+    org: 0,
     cc: 0,
     capital: 0,
     techHr: 0,
     tada: 0,
-    ore: 130000000
+    ore: 0
   });
   const [payments, setPayments] = useState({
     org: 0,
@@ -184,7 +184,7 @@ const PublicDashboard = () => {
   };
 
   const chartData = [
-    { name: 'ORE', allocated: allocations.ore !== undefined ? allocations.ore : 130000000, indented: stats.ore || 0, payments: payments.ore || 0 },
+    { name: 'ORE', allocated: allocations.ore || 0, indented: stats.ore || 0, payments: payments.ore || 0 },
     { name: 'C&C', allocated: allocations.cc || 0, indented: stats.ccIndents || 0, payments: payments.cc || 0 },
     { name: 'Capital', allocated: allocations.capital || 0, indented: stats.capitalEquipments || 0, payments: payments.capital || 0 },
     { name: 'Tech HR', allocated: allocations.techHr || 0, indented: stats.manpower || 0, payments: payments.techHr || 0 },
@@ -212,7 +212,7 @@ const PublicDashboard = () => {
       <div className="stats-grid" style={{ marginTop: '2rem' }}>
         <StatCard 
           title="ORE" 
-          allocated={allocations.ore !== undefined ? allocations.ore : 130000000}
+          allocated={allocations.ore || 0}
           indented={stats.ore} 
           colorClass="accent-rose"
         />
