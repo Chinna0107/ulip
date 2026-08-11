@@ -47,7 +47,7 @@ const Login = () => {
           <h1 className="login-title">Welcome Back</h1>
           <p className="login-subtitle">Sign in to the ULIP Portal</p>
           <p style={{fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.5rem'}}>
-            (Hint: Use admin@ulip.com / password)
+            {/* (Hint: Use admin@ulip.com / password) */}
           </p>
         </div>
 
