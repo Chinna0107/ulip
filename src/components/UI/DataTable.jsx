@@ -6,7 +6,7 @@ import autoTable from 'jspdf-autotable';
 import './DataTable.css';
 
 const DataTable = ({ columns, data, title, onAdd, onEdit, onDelete, budgetLimit, sumKey }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({});
   const [isSaving, setIsSaving] = useState(false);
@@ -17,20 +17,20 @@ const DataTable = ({ columns, data, title, onAdd, onEdit, onDelete, budgetLimit,
     return h.includes('cost') || h.includes('amount') || h.includes('total') || h.includes('qty') || h.includes('rate') || h.includes('gst') || h.includes('budget') || !isNaN(Number(header));
   };
 
-  const handleOpenAddModal = () => {
+  const handleOpenAdd = () => {
     setFormData({});
     setEditingId(null);
-    setIsModalOpen(true);
+    setIsFormOpen(true);
   };
 
-  const handleOpenEditModal = (row) => {
+  const handleOpenEdit = (row) => {
     setFormData({ ...row });
     setEditingId(row.id);
-    setIsModalOpen(true);
+    setIsFormOpen(true);
   };
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
+  const handleCloseForm = () => {
+    setIsFormOpen(false);
     setFormData({});
     setEditingId(null);
     setIsSaving(false);
@@ -41,7 +41,7 @@ const DataTable = ({ columns, data, title, onAdd, onEdit, onDelete, budgetLimit,
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     setIsSaving(true);
     try {
       if (editingId) {
@@ -49,7 +49,7 @@ const DataTable = ({ columns, data, title, onAdd, onEdit, onDelete, budgetLimit,
       } else {
         await onAdd(formData);
       }
-      handleCloseModal();
+      handleCloseForm();
     } catch (err) {
       console.error(err);
       setIsSaving(false);
@@ -101,11 +101,19 @@ const DataTable = ({ columns, data, title, onAdd, onEdit, onDelete, budgetLimit,
   let hasTotalColumn = false;
   
   if (columns && displayData.length > 0) {
-    const totalColumn = columns.find(col => 
-      col.header.toLowerCase().includes('total') || 
-      col.header.toLowerCase().includes('amount') ||
-      col.header.toLowerCase().includes('price')
-    );
+    let totalColumn = null;
+    if (sumKey) {
+      totalColumn = columns.find(col => col.accessor === sumKey);
+    }
+    
+    if (!totalColumn) {
+      totalColumn = columns.find(col => 
+        col.header.toLowerCase().includes('total') || 
+        col.header.toLowerCase().includes('amount') ||
+        col.header.toLowerCase().includes('price')
+      );
+    }
+
     if (totalColumn) {
       hasTotalColumn = true;
       grandTotal = displayData.reduce((sum, row) => {
@@ -134,6 +142,77 @@ const DataTable = ({ columns, data, title, onAdd, onEdit, onDelete, budgetLimit,
     }
   }
 
+  const renderFormRow = () => (
+    <tr className="form-row">
+      {columns.map((col, index) => (
+        <td key={index} style={{ padding: '0.5rem' }}>
+          {col.type === 'select' ? (
+            <select
+              value={formData[col.accessor] || ''}
+              onChange={(e) => handleFormChange(e, col.accessor)}
+              className="form-select"
+              style={{
+                width: '100%',
+                padding: '0.5rem',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid var(--border-color)',
+                background: 'var(--bg-tertiary)',
+                color: 'var(--text-primary)',
+                minWidth: '120px'
+              }}
+            >
+              <option value="">Select</option>
+              {col.options?.map(opt => (
+                <option key={opt} value={opt}>{opt}</option>
+              ))}
+            </select>
+          ) : (
+            <input
+              type={isNumericColumn(col.header) ? 'number' : 'text'}
+              step={isNumericColumn(col.header) ? 'any' : undefined}
+              value={formData[col.accessor] || ''}
+              onChange={(e) => handleFormChange(e, col.accessor)}
+              placeholder={col.header}
+              style={{
+                width: '100%',
+                padding: '0.5rem',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid var(--border-color)',
+                background: 'var(--bg-tertiary)',
+                color: 'var(--text-primary)',
+                minWidth: '120px'
+              }}
+            />
+          )}
+        </td>
+      ))}
+      <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+          <button 
+            type="button" 
+            className="btn-primary" 
+            style={{ padding: '0.5rem', display: 'flex', alignItems: 'center' }} 
+            onClick={handleSubmit} 
+            disabled={isSaving}
+            title="Save"
+          >
+            <Save size={16} />
+          </button>
+          <button 
+            type="button" 
+            className="btn-secondary" 
+            style={{ padding: '0.5rem', display: 'flex', alignItems: 'center' }} 
+            onClick={handleCloseForm} 
+            disabled={isSaving}
+            title="Cancel"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      </td>
+    </tr>
+  );
+
   return (
     <div className="data-table-container glass animate-fade-in">
       <div className="data-table-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -149,8 +228,8 @@ const DataTable = ({ columns, data, title, onAdd, onEdit, onDelete, budgetLimit,
               </button>
             </>
           )}
-          {columns && columns.length > 0 && onAdd && (
-            <button className="btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }} onClick={handleOpenAddModal}>
+          {columns && columns.length > 0 && onAdd && !isFormOpen && (
+            <button className="btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }} onClick={handleOpenAdd}>
               <Plus size={16} /> Add Record
             </button>
           )}
@@ -158,16 +237,35 @@ const DataTable = ({ columns, data, title, onAdd, onEdit, onDelete, budgetLimit,
       </div>
 
       {/* Stats Bar */}
-      <div style={{ display: 'flex', gap: '3rem', padding: '1rem 1.5rem', background: 'rgba(255, 255, 255, 0.02)', borderBottom: '1px solid var(--border-color)' }}>
+      <div style={{ display: 'flex', gap: '3rem', padding: '1rem 1.5rem', background: 'rgba(255, 255, 255, 0.02)', borderBottom: '1px solid var(--border-color)', flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: '600' }}>No. of Entries</span>
           <span style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)', marginTop: '0.2rem' }}>{totalEntries}</span>
         </div>
+        
+        {budgetLimit !== null && budgetLimit !== undefined && (
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: '600' }}>Budget Limit</span>
+            <span style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--text-primary)', marginTop: '0.2rem' }}>
+              {budgetLimit.toLocaleString('en-US', { maximumFractionDigits: 2 })}
+            </span>
+          </div>
+        )}
+
         {hasTotalColumn && (
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: '600' }}>Grand Total</span>
             <span style={{ fontSize: '1.25rem', fontWeight: '700', color: 'var(--accent-primary)', marginTop: '0.2rem' }}>
               {grandTotal.toLocaleString('en-US', { maximumFractionDigits: 2 })}
+            </span>
+          </div>
+        )}
+
+        {budgetLimit !== null && budgetLimit !== undefined && hasTotalColumn && (
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: '600' }}>Remaining Budget</span>
+            <span style={{ fontSize: '1.25rem', fontWeight: '700', color: (budgetLimit - grandTotal) < 0 ? 'var(--error)' : 'var(--success)', marginTop: '0.2rem' }}>
+              {(budgetLimit - grandTotal).toLocaleString('en-US', { maximumFractionDigits: 2 })}
             </span>
           </div>
         )}
@@ -184,96 +282,50 @@ const DataTable = ({ columns, data, title, onAdd, onEdit, onDelete, budgetLimit,
             </tr>
           </thead>
           <tbody>
+            {isFormOpen && !editingId && renderFormRow()}
+            
             {displayData && displayData.length > 0 ? (
-              displayData.map((row, rowIndex) => (
-                <tr key={rowIndex}>
-                  {columns.map((col, colIndex) => (
-                    <td key={colIndex}>{row[col.accessor] || '-'}</td>
-                  ))}
-                  {(onEdit || onDelete) && (
-                    <td style={{ textAlign: 'right' }}>
-                      <div className="action-buttons">
-                        {onEdit && (
-                          <button className="icon-btn edit-btn" onClick={() => handleOpenEditModal(row)}>
-                            <Edit2 size={16} />
-                          </button>
-                        )}
-                        {onDelete && (
-                          <button className="icon-btn delete-btn" onClick={() => onDelete(row.id)}>
-                            <Trash2 size={16} />
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  )}
-                </tr>
-              ))
+              displayData.map((row, rowIndex) => {
+                if (isFormOpen && editingId === row.id) {
+                  return renderFormRow();
+                }
+                
+                return (
+                  <tr key={rowIndex}>
+                    {columns.map((col, colIndex) => (
+                      <td key={colIndex}>{row[col.accessor] || '-'}</td>
+                    ))}
+                    {(onEdit || onDelete) && (
+                      <td style={{ textAlign: 'right' }}>
+                        <div className="action-buttons">
+                          {onEdit && (
+                            <button className="icon-btn edit-btn" onClick={() => handleOpenEdit(row)} disabled={isFormOpen}>
+                              <Edit2 size={16} />
+                            </button>
+                          )}
+                          {onDelete && (
+                            <button className="icon-btn delete-btn" onClick={() => onDelete(row.id)} disabled={isFormOpen}>
+                              <Trash2 size={16} />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    )}
+                  </tr>
+                );
+              })
             ) : (
-              <tr>
-                <td colSpan={columns.length + (onEdit ? 1 : 0)} className="no-data">
-                  No records found. Click "Add Record" to create one.
-                </td>
-              </tr>
+              !isFormOpen && (
+                <tr>
+                  <td colSpan={columns.length + (onEdit ? 1 : 0)} className="no-data">
+                    No records found. Click "Add Record" to create one.
+                  </td>
+                </tr>
+              )
             )}
           </tbody>
         </table>
       </div>
-
-      {isModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content glass">
-            <div className="modal-header">
-              <h3>{editingId ? 'Edit Record' : 'Add New Record'}</h3>
-              <button className="icon-btn" onClick={handleCloseModal}><X size={20} /></button>
-            </div>
-            <form onSubmit={handleSubmit} className="modal-form">
-              {columns.map((col, index) => (
-                <div key={index} className="form-group">
-                  <label>{col.header}</label>
-                  {col.type === 'select' ? (
-                    <select
-                      value={formData[col.accessor] || ''}
-                      onChange={(e) => handleFormChange(e, col.accessor)}
-                      className="form-select"
-                      style={{ padding: '0.75rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-color)', background: 'var(--bg-tertiary)', color: 'var(--text-primary)', width: '100%', fontSize: '0.95rem' }}
-                    >
-                      <option value="">Select {col.header}</option>
-                      {col.options?.map(opt => (
-                        <option key={opt} value={opt}>{opt}</option>
-                      ))}
-                    </select>
-                  ) : (
-                    <input
-                      type={isNumericColumn(col.header) ? 'number' : 'text'}
-                      step={isNumericColumn(col.header) ? 'any' : undefined}
-                      value={formData[col.accessor] || ''}
-                      onChange={(e) => handleFormChange(e, col.accessor)}
-                      placeholder={`Enter ${col.header}`}
-                    />
-                  )}
-                </div>
-              ))}
-              
-              {isOverBudget && (
-                <div style={{ color: 'var(--error)', backgroundColor: 'var(--error-light)', padding: '0.75rem', borderRadius: 'var(--radius-md)', marginBottom: '1rem', fontSize: '0.9rem', border: '1px solid var(--error)' }}>
-                  <strong>Budget Exceeded:</strong> Projected total ({projectedTotal.toLocaleString('en-IN', { maximumFractionDigits: 0 })}) exceeds the allocated limit of {budgetLimit.toLocaleString('en-IN', { maximumFractionDigits: 0 })}.
-                </div>
-              )}
-              
-              <div className="modal-actions">
-                <button type="button" className="btn-secondary" onClick={handleCloseModal} disabled={isSaving}>Cancel</button>
-                <button type="submit" className="btn-primary" disabled={isSaving || isOverBudget}>
-                  {isSaving ? (
-                    'Saving...'
-                  ) : (
-                    <><Save size={16} style={{ marginRight: '0.5rem' }} /> Save</>
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

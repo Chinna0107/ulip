@@ -14,10 +14,16 @@ const mapSheetToAllocationKey = (sheetName) => {
 };
 
 const getSumKey = (columns) => {
-  const keywords = ['Total Amount per month', 'Total Amount', 'Grand Total', 'Amount', 'Total', 'Estimated Cost', 'Budget'];
-  for (const keyword of keywords) {
-    let col = columns.find(c => c.header && c.header.trim().toLowerCase() === keyword.toLowerCase());
-    if (!col) col = columns.find(c => c.header && c.header.toLowerCase().includes(keyword.toLowerCase()));
+  // Try exact matches first
+  const exactKeywords = ['grand total', 'total amount', 'amount', 'total', 'estimated cost', 'budget'];
+  for (const keyword of exactKeywords) {
+    const col = columns.find(c => c.header && c.header.trim().toLowerCase() === keyword);
+    if (col) return col.accessor;
+  }
+  
+  // Fallback to partial matches
+  for (const keyword of exactKeywords) {
+    const col = columns.find(c => c.header && c.header.toLowerCase().includes(keyword));
     if (col) return col.accessor;
   }
   return null;
@@ -75,21 +81,6 @@ const GenericPage = ({ title, sheetName }) => {
   }, [sheetName]);
 
   const handleAdd = async (newData) => {
-    // Validate against allocations
-    const allocKey = mapSheetToAllocationKey(sheetName);
-    if (allocKey && allocations[allocKey] !== undefined) {
-      const limit = Number(allocations[allocKey]);
-      const sumKey = getSumKey(columns);
-      if (sumKey) {
-        const currentTotal = data.reduce((sum, item) => sum + (Number(item[sumKey]) || 0), 0);
-        const addedValue = Number(newData[sumKey]) || 0;
-        if (currentTotal + addedValue > limit) {
-          alert(`Error: Cannot save record. The new Grand Total (${formatCurrency(currentTotal + addedValue)}) would exceed the allocated budget of ${formatCurrency(limit)} for this category.`);
-          return;
-        }
-      }
-    }
-
     try {
       const response = await apiClient.post(`/records/${encodeURIComponent(sheetName)}`, newData);
       setData([...data, response.data]);
@@ -101,24 +92,6 @@ const GenericPage = ({ title, sheetName }) => {
   };
 
   const handleEdit = async (id, updatedData) => {
-    // Validate against allocations
-    const allocKey = mapSheetToAllocationKey(sheetName);
-    if (allocKey && allocations[allocKey] !== undefined) {
-      const limit = Number(allocations[allocKey]);
-      const sumKey = getSumKey(columns);
-      if (sumKey) {
-        const currentTotalExcludingThis = data.reduce((sum, item) => {
-          if (item.id === id) return sum;
-          return sum + (Number(item[sumKey]) || 0);
-        }, 0);
-        const editedValue = Number(updatedData[sumKey]) || 0;
-        if (currentTotalExcludingThis + editedValue > limit) {
-          alert(`Error: Cannot update record. The new Grand Total (${formatCurrency(currentTotalExcludingThis + editedValue)}) would exceed the allocated budget of ${formatCurrency(limit)} for this category.`);
-          return;
-        }
-      }
-    }
-
     try {
       const response = await apiClient.put(`/records/${encodeURIComponent(sheetName)}/${id}`, updatedData);
       setData(data.map(item => item.id === id ? response.data : item));

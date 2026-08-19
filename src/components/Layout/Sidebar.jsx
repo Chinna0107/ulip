@@ -54,7 +54,7 @@ const Sidebar = ({ onLogout, isOpen, onClose }) => {
         { title: 'Capital', path: '/overall-ulip/capital', roles: ['admin'] },
         { title: 'Man Power', path: '/overall-ulip/man-power', roles: ['admin'] },
         { title: 'TADA Indents', path: '/overall-ulip/tada-indents', roles: ['admin'] },
-        { title: 'Prioritized Equipments', path: '/overall-ulip/prioritized-equipments', roles: ['admin', 'user'] },
+        // { title: 'Prioritized Equipments', path: '/overall-ulip/prioritized-equipments', roles: ['admin', 'user'] },
         { title: 'ORE', path: '/overall-ulip/ore', roles: ['admin'] }
       ]
     },

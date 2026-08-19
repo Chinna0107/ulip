@@ -45,9 +45,9 @@ const PublicLayout = () => {
           <span onClick={() => handleNav('/departmental-grant')} className="nav-link-hover">
             Departmental Grant
           </span>
-          <span onClick={() => handleNav('/startup-grant')} className="nav-link-hover">
+          {/* <span onClick={() => handleNav('/startup-grant')} className="nav-link-hover">
             Start Up Grant
-          </span>
+          </span> */}
           <button onClick={() => handleNav('/login')} className="btn-primary" style={{ padding: '0.4rem 1.2rem', fontWeight: '600' }}>
             Admin Login
           </button>
